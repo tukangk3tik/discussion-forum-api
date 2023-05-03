@@ -16,6 +16,7 @@ describe('NewThread entities', () => {
     const payload = {
       title: 'thread title',
       body: 1234,
+      owner: 'user-1234',
     };
 
     // Action & Assert
@@ -27,6 +28,7 @@ describe('NewThread entities', () => {
     const payload = {
       title: 'Thread title',
       body: 'Lorem ipsum set dolor amet',
+      owner: 'user-1234',
     };
 
     // Action

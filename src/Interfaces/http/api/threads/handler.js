@@ -1,11 +1,9 @@
-const AddThreadUseCase = require('../../../../Applications/use_case/AddThreadUseCase');
-// const autoBind = require('auto-bind');
+const ThreadUseCase = require('../../../../Applications/use_case/ThreadUseCase');
 
 class ThreadsHandler {
   constructor(container) {
     this._container = container;
 
-    //autoBind(this);
     this.postThreadsHandler = this.postThreadsHandler.bind(this);
   }
 
@@ -13,8 +11,8 @@ class ThreadsHandler {
     const {id: userId} = request.auth.credentials;
     request.payload.owner = userId;
 
-    const addThreadUseCase = this._container.getInstance(AddThreadUseCase.name);
-    const addedThread = await addThreadUseCase.execute(request.payload);
+    const threadUseCase = this._container.getInstance(ThreadUseCase.name);
+    const addedThread = await threadUseCase.addNewThread(request.payload);
 
     const response = h.response({
       status: 'success',
