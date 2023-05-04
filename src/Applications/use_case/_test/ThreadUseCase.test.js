@@ -9,10 +9,10 @@ describe('ThreadUseCase', () => {
     const useCasePayload = {
       title: 'SWE Clean Architecture',
       body: 'Lorem ipsum set dolor amet',
-      owner: 'user-1234',
     };
+    const owner = 'user-1234'
 
-    const mockNewThread = new NewThread({
+    const mockNewThread = new AddedThread({
       id: 'thread-321',
       title: useCasePayload.title,
       body: useCasePayload.body,
@@ -28,19 +28,21 @@ describe('ThreadUseCase', () => {
       threadRepository: mockThreadRepository,
     });
 
-    const newThread = await getThreadUseCase.addNewThread(useCasePayload);
-    expect(newThread).toStrictEqual(new NewThread({
+    const newThread = await getThreadUseCase.addNewThread(useCasePayload, owner);
+    expect(newThread).toStrictEqual(new AddedThread({
       id: 'thread-321',
       title: useCasePayload.title,
       body: useCasePayload.body,
       owner: 'user-1234',
     }));
 
-    expect(mockThreadRepository.addThread).toBeCalledWith(new NewThread({
-      title: useCasePayload.title,
-      body: useCasePayload.body,
-      owner: 'user-1234',
-    }))
+    expect(mockThreadRepository.addThread).toBeCalledWith(
+        new NewThread({
+          title: useCasePayload.title,
+          body: useCasePayload.body,
+        }), 
+        owner
+    );
   });
 
   it('should orchestrating the get thread action correctly', async () => {

@@ -8,7 +8,7 @@ describe('CommentUseCase', () => {
     const useCasePayload = {};
     const commentUseCase = new CommentUseCase({});
 
-    await expect(commentUseCase.addCommentOrReplies(useCasePayload))
+    await expect(commentUseCase.addComment(useCasePayload))
       .rejects
       .toThrowError('NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
   });
@@ -34,7 +34,7 @@ describe('CommentUseCase', () => {
       commentRepository: mockCommentRepository,
     });
 
-    const newComment = await getCommentUseCase.addCommentOrReplies(useCasePayload);
+    const newComment = await getCommentUseCase.addComment(useCasePayload);
     expect(newComment).toStrictEqual({
       id: 'comment-567',
       content: useCasePayload.content,
@@ -48,14 +48,12 @@ describe('CommentUseCase', () => {
  
   it('should orchestrating the delete comment action correctly', async () => {
     //Arrange
-    const useCasePayload = {
-      id: 'comment-567',
-      owner: 'user-1234'
-    };
+    const id = 'comment-567';
+    const owner = 'user-1234';
 
     const deletedAt = new Date().toISOString();
     const mockDeleteComment = {
-      id: useCasePayload.id,
+      id: id,
       deleted_at: deletedAt,
     };
 
@@ -71,11 +69,11 @@ describe('CommentUseCase', () => {
       commentRepository: mockCommentRepository,
     });
 
-    const deleteComment = await getCommentUseCase.deleteCommentOrReplies(useCasePayload);
-    expect(deleteComment.id).toStrictEqual(useCasePayload.id);
+    const deleteComment = await getCommentUseCase.deleteComment(id, owner);
+    expect(deleteComment.id).toStrictEqual(id);
     expect(deleteComment.deleted_at).toBeTruthy();
 
-    expect(mockCommentRepository.deleteComment).toBeCalledWith(useCasePayload.id);
+    expect(mockCommentRepository.deleteComment).toBeCalledWith(id);
   });
 
 });

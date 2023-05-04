@@ -3,13 +3,12 @@ class CommentUseCase {
     this._commentRepository = commentRepository;
   }
 
-  async addCommentOrReplies(useCasePayload){
+  async addComment(useCasePayload){
     this._verifyCommentPayload(useCasePayload);
     return await this._commentRepository.addComment(useCasePayload);
   }
 
-  async deleteCommentOrReplies(useCasePayload){
-    const {id, owner} = useCasePayload;
+  async deleteComment(id, owner){
     await this._commentRepository.verifyOwner(id, owner);
     return await this._commentRepository.deleteComment(id);
   }

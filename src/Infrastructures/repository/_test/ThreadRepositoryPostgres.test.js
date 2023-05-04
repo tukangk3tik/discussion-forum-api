@@ -25,16 +25,16 @@ describe('UserRepositoryPostgres', () => {
   describe('addThread function', () => {
     it ('should persist add new thread', async () => {
       // Arrange
+      const owner = 'user-8n4IfRl0GfvfDs_QHxQqr';
       const newThread = new NewThread({
         title: 'SWE Clean Architecture',
         body: 'Lorem ipsum set dolor amet',
-        owner: 'user-8n4IfRl0GfvfDs_QHxQqr',
       });
       const fakeIdGenerator = () => '321';
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
 
       // Action
-      const addedThread = await threadRepositoryPostgres.addThread(newThread);
+      const addedThread = await threadRepositoryPostgres.addThread(newThread, owner);
 
       // Assert 
       expect(addedThread).toStrictEqual(new AddedThread({

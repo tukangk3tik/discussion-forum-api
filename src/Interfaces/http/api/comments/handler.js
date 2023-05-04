@@ -20,9 +20,7 @@ class CommentsHandler {
     await threadUseCase.getThreadById(threadId);
 
     const commentUseCase = this._container.getInstance(CommentUseCase.name);
-    const addedComment =  mapAddCommentToResponse(
-        await commentUseCase.addCommentOrReplies(request.payload)
-    );
+    const addedComment = await commentUseCase.addComment(request.payload);
 
     const response = h.response({
       status: 'success',
@@ -32,6 +30,22 @@ class CommentsHandler {
     });
     response.code(201);
     return response;
+  }
+
+  async deleteCommentHandler(request, h) {
+    const {id: owner} = request.auth.credentials;
+    const {
+      thread_id: threadId,
+      comment_id: commentId
+    } = request.params;
+
+    const threadUseCase = this._container.getInstance(ThreadUseCase.name);
+    await threadUseCase.getThreadById(threadId);
+
+    const commentUseCase = this._container.getInstance(CommentUseCase.name);
+    await commentUseCase.deleteComment(commentId, owner);
+    
+    return { status: 'success' }; 
   }
 }
 

@@ -13,10 +13,6 @@ exports.up = (pgm) => {
       notNull: true,
       references: '"threads"',
     },
-    replies_parent: {
-      type: 'VARCHAR(50)',
-      references: '"thread_comments"',
-    },
     owner: {
       type: 'VARCHAR(50)',
       notNull: true,
