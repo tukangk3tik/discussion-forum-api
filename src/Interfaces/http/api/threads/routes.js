@@ -7,6 +7,11 @@ const routes = (handler) => ([
       auth: 'auth_jwt',
     },
   },
+  {
+    method: 'GET',
+    path: '/threads/{id}',
+    handler: handler.getThreadByIdHandler,
+  },
 ]);
 
 module.exports = routes;

@@ -13,6 +13,10 @@ class CommentUseCase {
     return await this._commentRepository.deleteComment(id);
   }
 
+  async getCommentByThreadId(id) {
+    return await this._commentRepository.getCommentByThreadId(id);
+  }
+
   _verifyCommentPayload(payload) {
     const {content} = payload;
 

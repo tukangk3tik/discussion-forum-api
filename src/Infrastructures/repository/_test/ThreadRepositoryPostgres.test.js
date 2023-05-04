@@ -1,7 +1,7 @@
 const ThreadTableTestHelper = require('../../../../tests/ThreadTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const NewThread = require('../../../Domains/threads/entities/NewThread');
-const AddedThread = require('../../../Domains/threads/entities/AddedThread');
+const AddedThread = require('../../../Domains/threads/entities/AddedThread')
 const pool = require('../../database/postgres/pool');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
@@ -64,12 +64,12 @@ describe('UserRepositoryPostgres', () => {
       const getThread = await threadRepositoryPostgres.getThreadById(id);
 
       // Assert 
-      expect(getThread).toStrictEqual(new AddedThread({
-        id: 'thread-321', 
-        title: 'SWE Clean Architecture',
-        body: 'Lorem ipsum set dolor amet',
-        owner: 'user-8n4IfRl0GfvfDs_QHxQqr',
-      }));
+      expect(getThread.date).toBeDefined();
+      expect(getThread.id).toEqual('thread-321');
+      expect(getThread.title).toEqual('SWE Clean Architecture');
+      expect(getThread.body).toEqual('Lorem ipsum set dolor amet');
+      expect(getThread.username).toEqual('test-user');
+      expect(getThread.comments).toEqual([]);
     });
   });
 })

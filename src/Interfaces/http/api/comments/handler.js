@@ -1,5 +1,4 @@
 const CommentUseCase = require('../../../../Applications/use_case/CommentUseCase');
-const { mapAddCommentToResponse } = require('../../../mapper/comment_map');
 const ThreadUseCase = require('../../../../Applications/use_case/ThreadUseCase');
 
 class CommentsHandler {
@@ -7,6 +6,7 @@ class CommentsHandler {
     this._container = container;
 
     this.postCommentHandler = this.postCommentHandler.bind(this);
+    this.deleteCommentHandler = this.deleteCommentHandler.bind(this);
   }
 
   async postCommentHandler(request, h) {
@@ -32,13 +32,13 @@ class CommentsHandler {
     return response;
   }
 
-  async deleteCommentHandler(request, h) {
+  async deleteCommentHandler(request) {
     const {id: owner} = request.auth.credentials;
     const {
       thread_id: threadId,
       comment_id: commentId
     } = request.params;
-
+    
     const threadUseCase = this._container.getInstance(ThreadUseCase.name);
     await threadUseCase.getThreadById(threadId);
 

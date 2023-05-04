@@ -2,6 +2,7 @@ const CommentRepository = require('../../Domains/comments/CommentRepository');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const AddedComment = require('../../Domains/comments/entities/AddedComment');
+const DetailComment = require('../../Domains/comments/entities/DetailComment');
 
 class CommentRepositoryPostgres extends CommentRepository {
   constructor(pool, idGenerator){
@@ -36,11 +37,34 @@ class CommentRepositoryPostgres extends CommentRepository {
     };
 
     const result = await this._pool.query(query);
+    //console.log(result.rowCount);
     if (!result.rowCount) {
       throw new NotFoundError('Gagal menghapus. Komentar tidak ditemukan');
     }
 
     return { ...result.rows[0] };
+  }
+
+  async getCommentByThreadId(threadId) {
+    const query = {
+      text: 'SELECT a.id, a.content, a.created_at as date,' +
+        ' a.deleted_at, b.username FROM thread_comments a' + 
+        ' JOIN users b ON b.id = a.owner' + 
+        ' WHERE a.thread_id = $1',
+      values: [threadId],
+    };
+
+    const result = await this._pool.query(query);
+    const final = result.rows.map((item) => {
+      if (item.deleted_at) {
+        item.content = '**komentar telah dihapus**';
+      }
+      item.date = item.date.toISOString();
+      item.replies = [];
+      return item;
+    });
+
+    return final.map((item) => new DetailComment({...item}));
   }
 
   async verifyOwner(id, owner) {

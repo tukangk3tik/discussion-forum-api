@@ -1,6 +1,7 @@
 const ThreadTableTestHelper = require('../../../../tests/ThreadTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const CommentTableTestHelper = require('../../../../tests/CommentTableTestHelper');
+const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const pool = require('../../database/postgres/pool');
@@ -21,6 +22,13 @@ describe('CommentRepositoryPostgres', () => {
         body: 'Lorem ipsum set dolor amet',
         owner: 'user-8n4IfRl0GfvfDs_QHxQqy',
     });
+
+    await CommentTableTestHelper.addComment({
+      id: 'comment-8932', 
+      content: 'test replies for comment 8932',
+      thread_id: 'thread-3212',
+      owner: 'user-8n4IfRl0GfvfDs_QHxQqy',
+  });
   });
 
   afterAll(async () => {
@@ -91,7 +99,9 @@ describe('CommentRepositoryPostgres', () => {
     //  expect(deletedReplies.id).toStrictEqual(idReplies);
     //  expect(deletedReplies.deleted_at).toBeTruthy();
     //});
+  });
 
+  describe('deleteComment function', () => {
     it('should persist delete comment', async () => {
       const idComment = 'comment-567';      
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
@@ -102,6 +112,28 @@ describe('CommentRepositoryPostgres', () => {
       // Assert 
       expect(deletedComment.id).toStrictEqual(idComment);
       expect(deletedComment.deleted_at).toBeTruthy();
+    });    
+  });
+
+  describe('getComment by Thread function', () => {
+    it ('should get thread by id with comment', async () => {
+      // Arrange
+      const id = 'thread-3212';
+      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action
+      const getThread = await threadRepositoryPostgres.getThreadById(id);
+      const getComments = await commentRepositoryPostgres.getCommentByThreadId(id);
+      getThread.comments = getComments;
+
+      // Assert 
+      expect(getThread.date).toBeDefined();
+      expect(getThread.id).toEqual('thread-3212');
+      expect(getThread.title).toEqual('SWE Clean Architecture');
+      expect(getThread.body).toEqual('Lorem ipsum set dolor amet');
+      expect(getThread.username).toEqual('test-user-comment');
+      expect(getThread.comments.length).toBeTruthy();
     });
   });
 });

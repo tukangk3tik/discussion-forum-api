@@ -5,17 +5,16 @@ const CommentTableTestHelper = {
     id = 'comment-567',
     content = 'Comment for SWE Clean Architecture lorem',
     thread_id = 'thread-321',
-    replies_parent = null,
     owner = 'user-123',
   }) {
     createdAt = new Date().toISOString();
 
     const query = {
       text: 'INSERT INTO thread_comments' + 
-          ' VALUES($1, $2, $3, $4, $5, $6)' + 
-          ' RETURNING id, content, replies_parent, owner',
+          ' VALUES($1, $2, $3, $4, $5)' + 
+          ' RETURNING id, content, owner',
         values: [id, content, thread_id, 
-          replies_parent, owner, createdAt],
+          owner, createdAt],
     };
 
     await pool.query(query);
