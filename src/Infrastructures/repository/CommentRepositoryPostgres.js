@@ -37,12 +37,26 @@ class CommentRepositoryPostgres extends CommentRepository {
     };
 
     const result = await this._pool.query(query);
-    //console.log(result.rowCount);
     if (!result.rowCount) {
       throw new NotFoundError('Gagal menghapus. Komentar tidak ditemukan');
     }
 
     return { ...result.rows[0] };
+  }
+
+  async getCommentById(id) {
+    const query = {
+      text: 'SELECT * from thread_comments' + 
+        ' WHERE id = $1 AND deleted_at IS NULL',
+      values: [id],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rowCount) {
+      throw new NotFoundError('Komentar tidak ditemukan');
+    }
+
+    return new AddedComment({...result.rows[0]});
   }
 
   async getCommentByThreadId(threadId) {
@@ -74,7 +88,6 @@ class CommentRepositoryPostgres extends CommentRepository {
     };
 
     const result = await this._pool.query(query);
-
     if (!result.rowCount) {
       throw new NotFoundError('Resource yang Anda minta tidak ditemukan');
     }

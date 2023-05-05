@@ -1,4 +1,5 @@
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
+const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 const CommentUseCase = require('../CommentUseCase');
 
 describe('CommentUseCase', () => {
@@ -44,6 +45,36 @@ describe('CommentUseCase', () => {
     expect(mockCommentRepository.addComment).toBeCalledWith({
       content: useCasePayload.content,
     });
+  });
+
+  it('should orchestrating the get comment by thread id action correctly', async () => {
+    //Arrange
+    const threadId = 'thread-5678'; 
+    const mockAddedComment = [new AddedComment({
+      id: 'comment-321',
+      content: 'Reply for thread 5678',
+      owner: 'user-1234',
+    })];
+
+    const mockCommentRepository = new CommentRepository();
+
+    mockCommentRepository.getCommentByThreadId = jest.fn()
+      .mockImplementation(() => Promise.resolve(mockAddedComment));
+    
+    const getCommentUseCase = new CommentUseCase({
+      commentRepository: mockCommentRepository,
+    });
+
+    const getComments = await getCommentUseCase.getCommentByThreadId(threadId);
+    expect(getComments.length).toBeTruthy();
+    expect(getComments[0]).toBeDefined();
+    expect(getComments[0]).toStrictEqual(new AddedComment({
+      id: 'comment-321',
+      content: 'Reply for thread 5678',
+      owner: 'user-1234',
+    }));
+    
+    expect(mockCommentRepository.getCommentByThreadId).toBeCalledWith(threadId);
   });
  
   it('should orchestrating the delete comment action correctly', async () => {

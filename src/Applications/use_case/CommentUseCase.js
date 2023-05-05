@@ -13,6 +13,10 @@ class CommentUseCase {
     return await this._commentRepository.deleteComment(id);
   }
 
+  async getCommentById(id) {
+    return await this._commentRepository.getCommentById(id);
+  }
+
   async getCommentByThreadId(id) {
     return await this._commentRepository.getCommentByThreadId(id);
   }

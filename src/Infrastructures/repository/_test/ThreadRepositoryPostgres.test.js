@@ -18,7 +18,7 @@ describe('UserRepositoryPostgres', () => {
 
   afterAll(async () => {
     await ThreadTableTestHelper.cleanTable();
-    await UsersTableTestHelper.deleteUserById('user-8n4IfRl0GfvfDs_QHxQqr');
+    await UsersTableTestHelper.cleanTable();
     await pool.end();
   });
 

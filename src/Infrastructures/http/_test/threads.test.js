@@ -42,7 +42,7 @@ describe('/threads endpoint', () => {
   afterAll(async () => {
     await CommentTableTestHelper.cleanTable();
     await ThreadTableTestHelper.cleanTable();
-    await UsersTableTestHelper.deleteUserById(userId);
+    await UsersTableTestHelper.cleanTable();
     await pool.end();
   });
 

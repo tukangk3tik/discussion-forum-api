@@ -4,15 +4,18 @@ const bcrypt = require('bcrypt');
 const ThreadTableTestHelper = require('../../../../tests/ThreadTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const CommentTableTestHelper = require('../../../../tests/CommentTableTestHelper');
+const ReplyTableTestHelper = require('../../../../tests/ReplyTableTestHelper');
 const container = require('../../container');
 const createServer = require('../createServer');
 const BcryptPasswordHash = require('../../security/BcryptPasswordHash');
 
 describe('/threads/{id}/comment endpoint', () => {
-  let token = '';
-  let userId = 'user-1234';
+  let userId = 'user-1234';  
+  let userId2 = 'user-1235';
   let threadId = 'thread-4321';
-  let commentId = '';
+  let commentId = 'comment-567'; 
+  let replyId = '';
+  let token = '';
   let tokenUser2 = '';
 
   beforeAll(async () => {
@@ -39,11 +42,10 @@ describe('/threads/{id}/comment endpoint', () => {
     expect(responseJson.status).toEqual('success');
     expect(responseJson.data.accessToken).toBeDefined();
     token = responseJson.data.accessToken;
-
-
+   
     // add user 2
     await UsersTableTestHelper.addUser({
-      id: 'user-1235', username: 'mirna1', 
+      id: userId2, username: 'mirna1', 
       password: passwordHash, fullname: 'Mirna L.',
     });
 
@@ -61,23 +63,32 @@ describe('/threads/{id}/comment endpoint', () => {
     expect(responseJsonUser2.data.accessToken).toBeDefined();
     tokenUser2 = responseJsonUser2.data.accessToken;
 
-     // add thread
-     ThreadTableTestHelper.addThread({
+
+    // add thread
+    ThreadTableTestHelper.addThread({
       id: threadId,
       title: 'SWE Clean Architecture',
       body: 'Lorem ipsum set dolor amet',
       owner: 'user-1234',
     });
+
+    CommentTableTestHelper.addComment({
+      id: 'comment-567',
+      content: 'Comment for SWE Clean Architecture lorem',
+      thread_id: threadId,
+      owner: userId,
+    });
   });
 
   afterAll(async () => {
+    await ReplyTableTestHelper.cleanTable();
     await CommentTableTestHelper.cleanTable();
     await ThreadTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
     await pool.end();
   });
 
-  describe('when POST /threads/{id}/comments', () => {
+  describe('when POST /threads/{threadId}/comments/{commentId}/replies', () => {
     it('should response 401 when no authorization', async () => {
       const requestPayload = {
         content: 'Comment Lorem ipsum set dolor amet',
@@ -86,7 +97,7 @@ describe('/threads/{id}/comment endpoint', () => {
       const server = await createServer(container);
       const response = await server.inject({
         method: 'POST',
-        url: `/threads/${threadId}/comments`,
+        url: `/threads/${threadId}/comments/${commentId}/replies`,
         payload: requestPayload,
       });
 
@@ -102,7 +113,7 @@ describe('/threads/{id}/comment endpoint', () => {
       const server = await createServer(container);
       const response = await server.inject({
         method: 'POST',
-        url: `/threads/${threadId}/comments`,
+        url: `/threads/${threadId}/comments/${commentId}/replies`,
         payload: requestPayload,
         headers: {'Authorization': `Bearer ${token}`},
       });
@@ -113,15 +124,15 @@ describe('/threads/{id}/comment endpoint', () => {
       expect(responseJson.message).toBeDefined();
     });
 
-    it('should response 201 and persisted comment', async () => {
+    it('should response 201 and persisted reply', async () => {
       const requestPayload = {
-        content: 'Comment Lorem ipsum set dolor amet',
+        content: 'Reply Lorem ipsum set dolor amet',
       };
 
       const server = await createServer(container);
       const response = await server.inject({
         method: 'POST',
-        url: `/threads/${threadId}/comments`,
+        url: `/threads/${threadId}/comments/${commentId}/replies`,
         payload: requestPayload,
         headers: {'Authorization': `Bearer ${token}`},
       });
@@ -129,31 +140,31 @@ describe('/threads/{id}/comment endpoint', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(201);
       expect(responseJson.status).toEqual('success');
-      expect(responseJson.data.addedComment).toBeDefined();
-      expect(responseJson.data.addedComment.id).toBeDefined();
+      expect(responseJson.data.addedReply).toBeDefined();
+      expect(responseJson.data.addedReply.id).toBeDefined();
 
-      commentId = responseJson.data.addedComment.id;
+      replyId = responseJson.data.addedReply.id;
     });
   });
 
-  describe('when DELETE /threads/{threadId}/comments/{commentId}', () => {
+  describe('when DELETE /threads/{threadId}/comments/{commentId}/replies/{replyId}', () => {
 
-    it('should throw authorization error (401) when delete comment', async () => {
+    it('should throw authorization error (401) when delete reply', async () => {
       const server = await createServer(container);
       const response = await server.inject({
         method: 'DELETE',
-        url: `/threads/${threadId}/comments/${commentId}`,
+        url: `/threads/${threadId}/comments/${commentId}/replies/${replyId}`,
         headers: {'Authorization': `Bearer token123`},
       });
 
       expect(response.statusCode).toEqual(401);
     });
 
-    it('should throw error when want delete comment from other user (403)', async () => {
+    it('should throw error when want delete reply from other user (403)', async () => {
       const server = await createServer(container);
       const response = await server.inject({
         method: 'DELETE',
-        url: `/threads/${threadId}/comments/${commentId}`,
+        url: `/threads/${threadId}/comments/${commentId}/replies/${replyId}`,
         headers: {'Authorization': `Bearer ${tokenUser2}`},
       });
 
@@ -162,11 +173,11 @@ describe('/threads/{id}/comment endpoint', () => {
       expect(responseJson.status).toEqual('fail')
     });
 
-    it('should response 200 and delete comment', async () => {
+    it('should response 200 and delete reply', async () => {
       const server = await createServer(container);
       const response = await server.inject({
         method: 'DELETE',
-        url: `/threads/${threadId}/comments/${commentId}`,
+        url: `/threads/${threadId}/comments/${commentId}/replies/${replyId}`,
         headers: {'Authorization': `Bearer ${token}`},
       });
 
@@ -175,11 +186,11 @@ describe('/threads/{id}/comment endpoint', () => {
       expect(responseJson.status).toEqual('success');
     });
 
-    it('should throw error when delete deleted comment', async () => {
+    it('should throw error when delete deleted reply', async () => {
       const server = await createServer(container);
       const response = await server.inject({
         method: 'DELETE',
-        url: `/threads/${threadId}/comments/${commentId}`,
+        url: `/threads/${threadId}/comments/${commentId}/replies/${replyId}`,
         headers: {'Authorization': `Bearer ${token}`},
       });
 
