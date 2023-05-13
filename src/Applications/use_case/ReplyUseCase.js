@@ -1,20 +1,45 @@
+const DetailReply = require("../../Domains/replies/entities/DetailReply");
+
 class ReplyUseCase {
-  constructor({replyRepository}) {
+  constructor({
+    replyRepository, commentRepository, threadRepository,
+  }) {
     this._replyRepository = replyRepository;
+    this._commentRepository = commentRepository;
+    this._threadRepository = threadRepository;
   }
 
   async addReply(useCasePayload){
     this._verifyReplyPayload(useCasePayload);
+ 
+    const {threadId, commentId} = useCasePayload;
+    await this._threadRepository.getThreadById(threadId);
+    await this._commentRepository.getCommentById(commentId);
+
     return await this._replyRepository.addReply(useCasePayload);
   }
 
-  async deleteReply(id, owner){
-    await this._replyRepository.verifyOwner(id, owner);
-    return await this._replyRepository.deleteReply(id);
+  async deleteReply(useCasePayload){
+    const {threadId, commentId, replyId, owner} = useCasePayload; 
+
+    await this._threadRepository.getThreadById(threadId);
+    await this._commentRepository.getCommentById(commentId);
+
+    await this._replyRepository.verifyOwner(replyId, owner);
+    return await this._replyRepository.deleteReply(replyId);
   }
 
   async getReplyByCommentId(id) { 
-    return await this._replyRepository.getReplyByCommentId(id);
+    const result = await this._replyRepository.getReplyByCommentId(id);
+    const final = result.map((item) => {
+      if (item.deleted_at) {
+        item.content = '**balasan telah dihapus**';
+      }
+      item.date = item.date.toISOString();
+      return item;
+    });
+
+    return final.map((item) => new DetailReply({...item}));
   }
 
   _verifyReplyPayload(payload) {

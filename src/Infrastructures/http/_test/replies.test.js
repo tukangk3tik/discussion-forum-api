@@ -63,17 +63,16 @@ describe('/threads/{id}/comment endpoint', () => {
     expect(responseJsonUser2.data.accessToken).toBeDefined();
     tokenUser2 = responseJsonUser2.data.accessToken;
 
-
     // add thread
-    ThreadTableTestHelper.addThread({
+    await ThreadTableTestHelper.addThread({
       id: threadId,
       title: 'SWE Clean Architecture',
       body: 'Lorem ipsum set dolor amet',
       owner: 'user-1234',
     });
 
-    CommentTableTestHelper.addComment({
-      id: 'comment-567',
+    await CommentTableTestHelper.addComment({
+      id: commentId,
       content: 'Comment for SWE Clean Architecture lorem',
       thread_id: threadId,
       owner: userId,

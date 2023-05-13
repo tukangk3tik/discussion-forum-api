@@ -1,6 +1,4 @@
 const ReplyUseCase = require('../../../../Applications/use_case/ReplyUseCase');
-const ThreadUseCase = require('../../../../Applications/use_case/ThreadUseCase');
-const CommentUseCase = require('../../../../Applications/use_case/CommentUseCase');
 
 class RepliesHandler {
   constructor(container) {
@@ -12,19 +10,15 @@ class RepliesHandler {
 
   async postReplyHandler(request, h) {
     const {id: userId} = request.auth.credentials;
-    const {threadId, commentId} = request.params;
 
-    request.payload.comment_id = commentId;
-    request.payload.owner = userId;
-
-    const threadUseCase = this._container.getInstance(ThreadUseCase.name);
-    await threadUseCase.getThreadById(threadId);
-
-    const commentUseCase = this._container.getInstance(CommentUseCase.name);
-    await commentUseCase.getCommentById(commentId);
+    const payload = {
+      ...request.params,
+      ...request.payload,
+      owner: userId,
+    };
 
     const replyUseCase = this._container.getInstance(ReplyUseCase.name); 
-    const addedReply = await replyUseCase.addReply(request.payload);
+    const addedReply = await replyUseCase.addReply(payload);
 
     const response = h.response({
       status: 'success',
@@ -37,21 +31,14 @@ class RepliesHandler {
   }
 
   async deleteReplyHandler(request) {
-    const {id: owner} = request.auth.credentials;
-    const {
-      threadId,
-      commentId,
-      replyId,
-    } = request.params;
-    
-    const threadUseCase = this._container.getInstance(ThreadUseCase.name);
-    await threadUseCase.getThreadById(threadId);
-
-    const commentUseCase = this._container.getInstance(CommentUseCase.name);
-    await commentUseCase.getCommentById(commentId, owner);
+    const {id: userId} = request.auth.credentials;
+    const payload = {
+      ...request.params,
+      owner: userId,
+    };
 
     const replyUseCase = this._container.getInstance(ReplyUseCase.name);
-    await replyUseCase.deleteReply(replyId, owner)
+    await replyUseCase.deleteReply(payload);
     
     return { status: 'success' }; 
   }

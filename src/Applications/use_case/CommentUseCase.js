@@ -1,16 +1,26 @@
+const DetailComment = require('../../Domains/comments/entities/DetailComment');
+
 class CommentUseCase {
-  constructor({commentRepository}) {
+  constructor({commentRepository, threadRepository}) {
     this._commentRepository = commentRepository;
+    this._threadRepository = threadRepository;
   }
 
   async addComment(useCasePayload){
     this._verifyCommentPayload(useCasePayload);
+
+    const {thread_id: threadId} = useCasePayload; 
+    await this._threadRepository.getThreadById(threadId);
+
     return await this._commentRepository.addComment(useCasePayload);
   }
 
-  async deleteComment(id, owner){
-    await this._commentRepository.verifyOwner(id, owner);
-    return await this._commentRepository.deleteComment(id);
+  async deleteComment(useCasePayload){
+    const {threadId, commentId, owner} = useCasePayload; 
+    await this._threadRepository.getThreadById(threadId);
+    
+    await this._commentRepository.verifyOwner(commentId, owner);
+    return await this._commentRepository.deleteComment(commentId);
   }
 
   async getCommentById(id) {
@@ -18,11 +28,21 @@ class CommentUseCase {
   }
 
   async getCommentByThreadId(id) {
-    return await this._commentRepository.getCommentByThreadId(id);
+    const result = await this._commentRepository.getCommentByThreadId(id);
+    const final = result.map((item) => {
+      if (item.deleted_at) {
+        item.content = '**komentar telah dihapus**';
+      }
+      item.date = item.date.toISOString();
+      item.replies = [];
+      return item;
+    });
+
+    return final.map((item) => new DetailComment({...item}));
   }
 
   _verifyCommentPayload(payload) {
-    const {content} = payload;
+    const {content, thread_id} = payload;
 
     if (!content) {
       throw new Error('NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY')

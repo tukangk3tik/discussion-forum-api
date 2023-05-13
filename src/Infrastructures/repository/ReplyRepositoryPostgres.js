@@ -12,7 +12,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
   }
 
   async addReply(addedReply){
-    const {content, comment_id, owner} = addedReply;
+    const {content, commentId, owner} = addedReply;
     const id = `reply-${this._idGenerator()}`;
     const createdAt = new Date().toISOString();
 
@@ -20,7 +20,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
       text: 'INSERT INTO thread_comment_replies' + 
         ' VALUES($1, $2, $3, $4, $5)' + 
         ' RETURNING id, content, comment_id, owner',
-      values: [id, content, comment_id, owner, createdAt],
+      values: [id, content, commentId, owner, createdAt],
     }; 
     const result = await this._pool.query(query);
     return new AddedReply({ ...result.rows[0] });
@@ -55,15 +55,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     };
 
     const result = await this._pool.query(query);
-    const final = result.rows.map((item) => {
-      if (item.deleted_at) {
-        item.content = '**balasan telah dihapus**';
-      }
-      item.date = item.date.toISOString();
-      return item;
-    });
-
-    return final.map((item) => new DetailReply({...item}));
+    return result.rows;
   }
 
   async verifyOwner(id, owner) {
@@ -81,6 +73,8 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     if (comment.owner !== owner) {
       throw new AuthorizationError('Anda tidak berhak mengakses resource');
     }
+
+    return true;
   }
 }
 

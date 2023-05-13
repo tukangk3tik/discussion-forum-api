@@ -20,6 +20,26 @@ const ReplyTableTestHelper = {
     await pool.query(query);
   },
 
+  async getReplyById(id) {
+    const query = {
+      text: 'SELECT * FROM thread_comment_replies WHERE id = $1',
+      values: [id],
+    };
+
+    const result = await pool.query(query);
+    return result.rows;
+  },
+
+  async getReplyByContent(content) {
+    const query = {
+      text: 'SELECT * FROM thread_comment_replies WHERE content = $1',
+      values: [content],
+    };
+
+    const result = await pool.query(query);
+    return result.rows;
+  },
+
   async cleanTable() {
     await pool.query('DELETE FROM thread_comment_replies WHERE 1=1');
   },
