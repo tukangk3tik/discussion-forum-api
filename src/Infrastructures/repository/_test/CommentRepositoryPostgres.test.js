@@ -50,7 +50,6 @@ describe('CommentRepositoryPostgres', () => {
       const addedComment = await commentRepositoryPostgres.addComment(newComment);
 
       // Assert 
-      expect(addedComment).toBeInstanceOf(AddedComment);
       expect(addedComment).toStrictEqual(new AddedComment({
         id: 'comment-567',
         content: 'Comment for SWE Clean Architecture lorem',

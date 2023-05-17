@@ -8,7 +8,22 @@ describe('NewThread entities', () => {
     };
 
     // Action & Assert
-    expect(() => new NewThread(payload)).toThrowError('NEW_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
+    expect(() => new NewThread(payload))
+        .toThrowError('NEW_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
+  });
+
+  it('should throw error when title contains more than 150 character', () => {
+    // Arrange
+    const payload = {
+      title: 'dicodingindonesiadicodingindonesiadicodingindonesiadicoding' +
+        'dicodingindonesiadicodingindonesiadicodingindonesiadicoding' +
+         'dicodingindonesiadicodingindonesiadicodingindonesiadi',
+      body: 'Tes artikel dari dicoding',
+    };
+
+    // Action and Assert
+    expect(() => new NewThread(payload))
+        .toThrowError('NEW_THREAD.TITLE_LIMIT_CHAR');
   });
 
   it('should throw error when payload not meet data type specification', () => {
@@ -20,7 +35,8 @@ describe('NewThread entities', () => {
     };
 
     // Action & Assert
-    expect(() => new NewThread(payload)).toThrowError('NEW_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    expect(() => new NewThread(payload))
+        .toThrowError('NEW_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
   it('should create NewThread entities correctly', () => {

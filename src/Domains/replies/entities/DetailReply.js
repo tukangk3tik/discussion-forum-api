@@ -4,7 +4,7 @@ class DetailReply {
 
     this.id = payload.id;
     this.content = payload.content;
-    this.date = payload.date;
+    this.date = payload.date.toISOString();
     this.username = payload.username;
   }
 
@@ -18,7 +18,7 @@ class DetailReply {
     if (
       typeof id !== 'string' ||
       typeof content !== 'string' ||
-      typeof date !== 'string' ||
+      Object.prototype.toString.call(date) !== '[object Date]' ||
       typeof username !== 'string'
     ) {
       throw new Error('DETAIL_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION');

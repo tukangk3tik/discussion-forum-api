@@ -23,7 +23,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
       values: [id, content, commentId, owner, createdAt],
     }; 
     const result = await this._pool.query(query);
-    return new AddedReply({ ...result.rows[0] });
+    return new AddedReply(result.rows[0]);
   }
 
   async deleteReply(id) {
@@ -44,14 +44,14 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     return { ...result.rows[0] };
   }
 
-  async getReplyByCommentId(commentId) { 
+  async getReplyByCommentIds(commentIds) { 
     const query = {
-      text: 'SELECT a.id, a.content, a.created_at as date,' +
+      text: 'SELECT a.id, a.comment_id, a.content, a.created_at as date,' +
         ' a.deleted_at, b.username FROM thread_comment_replies a' + 
         ' JOIN users b ON b.id = a.owner' + 
-        ' WHERE a.comment_id = $1' + 
+        ' WHERE a.comment_id = ANY($1::text[])' + 
         ' ORDER by a.deleted_at',
-      values: [commentId],
+      values: [commentIds],
     };
 
     const result = await this._pool.query(query);

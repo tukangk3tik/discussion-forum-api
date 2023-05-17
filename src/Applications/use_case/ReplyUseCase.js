@@ -35,11 +35,10 @@ class ReplyUseCase {
       if (item.deleted_at) {
         item.content = '**balasan telah dihapus**';
       }
-      item.date = item.date.toISOString();
       return item;
     });
 
-    return final.map((item) => new DetailReply({...item}));
+    return final.map((item) => new DetailReply(item));
   }
 
   _verifyReplyPayload(payload) {

@@ -16,19 +16,19 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     const createdAt = new Date().toISOString();
 
     const query = {
-      text: 'INSERT INTO threads VALUES($1, $2, $3, $4, $5)' + 
+      text: 'INSERT INTO threads VALUES($1, $2, $3, $4, $5)' +
         ' RETURNING id, title, body, owner',
       values: [id, title, body, owner, createdAt],
     };
 
     const result = await this._pool.query(query);
-    return new AddedThread({...result.rows[0]});
+    return new AddedThread(result.rows[0]);
   }
 
   async getThreadById(id) {
     const query = {
-      text: 'SELECT a.id, a.title, a.body,' + 
-        ' a.created_at as date, b.username FROM threads a' + 
+      text: 'SELECT a.id, a.title, a.body,' +
+        ' a.created_at as date, b.username FROM threads a' +
         ' JOIN users b ON b.id = a.owner' +
         ' WHERE a.id = $1',
       values: [id],
@@ -39,9 +39,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
       throw new NotFoundError('Thread tidak ditemukan');
     }
 
-    result.rows[0].date = result.rows[0].date.toISOString();
-    result.rows[0].comments = [];
-    return new DetailThread({...result.rows[0]});
+    return new DetailThread(result.rows[0]);
   }
 }
 

@@ -1,6 +1,3 @@
-/* eslint-disable camelcase */
-
-exports.shorthands = undefined;
 
 exports.up = (pgm) => {
   pgm.createTable('thread_comment_replies', {
@@ -25,6 +22,7 @@ exports.up = (pgm) => {
     created_at: {
       type: 'datetime',
       notNull: true,
+      default: pgm.func('current_timestamp'),
     },
     deleted_at: {
       type: 'datetime',

@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 const pool = require('../src/Infrastructures/database/postgres/pool');
 
 const ThreadTableTestHelper = {
@@ -25,6 +26,16 @@ const ThreadTableTestHelper = {
 
     const result = await pool.query(query);
     return result.rows[0];
+  },
+
+  async getThreadByTitle(title){
+    const query = {
+      text: 'SELECT * FROM threads WHERE title = $1',
+      values: [title]
+    };
+
+    const result = await pool.query(query);
+    return result.rows;
   },
 
   async cleanTable() {

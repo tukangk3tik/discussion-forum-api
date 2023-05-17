@@ -40,11 +40,12 @@ describe('CommentUseCase', () => {
       owner: 'user-1234',
     });
 
+    console.log(new Date());
     const thread = new DetailThread({
       id: 'thread-321',
       title: "Title thread",
       body: "Thread body",
-      date: new Date().toISOString(),
+      date: new Date(),
       username: 'user-test',
       comments: [],
     });
@@ -52,11 +53,8 @@ describe('CommentUseCase', () => {
     const mockCommentRepository = new CommentRepository();
     const mockThreadRepository = new ThreadRepository();
 
-    mockCommentRepository.addComment = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockNewComment));
-
-    mockThreadRepository.getThreadById = jest.fn()
-      .mockImplementation(() => Promise.resolve(thread));
+    mockCommentRepository.addComment = jest.fn(() => Promise.resolve(mockNewComment));
+    mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve(thread));
     
     const getCommentUseCase = new CommentUseCase({
       commentRepository: mockCommentRepository,
@@ -88,8 +86,7 @@ describe('CommentUseCase', () => {
 
     const mockCommentRepository = new CommentRepository();
 
-    mockCommentRepository.getCommentById = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockAddedComment));
+    mockCommentRepository.getCommentById = jest.fn(() => Promise.resolve(mockAddedComment));
     
     const getCommentUseCase = new CommentUseCase({
       commentRepository: mockCommentRepository,
@@ -121,8 +118,7 @@ describe('CommentUseCase', () => {
 
     const mockCommentRepository = new CommentRepository();
 
-    mockCommentRepository.getCommentByThreadId = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockDetailComment));
+    mockCommentRepository.getCommentByThreadId = jest.fn(() => Promise.resolve(mockDetailComment));
     
     const getCommentUseCase = new CommentUseCase({
       commentRepository: mockCommentRepository,
@@ -133,7 +129,7 @@ describe('CommentUseCase', () => {
     expect(getComments[0]).toStrictEqual(new DetailComment({
       id: 'comment-321',
       content: 'Reply for thread 5678',
-      date: newDate.toISOString(),
+      date: newDate,
       username: 'user-test',
       replies: [],
     }));
@@ -155,8 +151,7 @@ describe('CommentUseCase', () => {
 
     const mockCommentRepository = new CommentRepository();
 
-    mockCommentRepository.getCommentByThreadId = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockDetailComment));
+    mockCommentRepository.getCommentByThreadId = jest.fn(() => Promise.resolve(mockDetailComment));
     
     const getCommentUseCase = new CommentUseCase({
       commentRepository: mockCommentRepository,
@@ -167,9 +162,8 @@ describe('CommentUseCase', () => {
     expect(getComments[0]).toStrictEqual(new DetailComment({
       id: 'comment-321',
       content: '**komentar telah dihapus**',
-      date: newDate.toISOString(),
+      date: newDate,
       username: 'user-test',
-      replies: [],
     }));
     
     expect(mockCommentRepository.getCommentByThreadId).toBeCalledWith(threadId);
@@ -181,7 +175,7 @@ describe('CommentUseCase', () => {
       id: 'thread-321',
       title: "Title thread",
       body: "Thread body",
-      date: new Date().toISOString(),
+      date: new Date(),
       username: 'user-test',
       comments: [],
     });
@@ -201,14 +195,9 @@ describe('CommentUseCase', () => {
     const mockCommentRepository = new CommentRepository();
     const mockThreadRepository = new ThreadRepository();
 
-    mockCommentRepository.verifyOwner = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-
-    mockCommentRepository.deleteComment = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockDeleteComment));
-
-    mockThreadRepository.getThreadById = jest.fn()
-      .mockImplementation(() => Promise.resolve(thread));
+    mockCommentRepository.verifyOwner = jest.fn(() => Promise.resolve(true));
+    mockCommentRepository.deleteComment = jest.fn(() => Promise.resolve(mockDeleteComment));
+    mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve(thread));
     
     const getCommentUseCase = new CommentUseCase({
       commentRepository: mockCommentRepository,

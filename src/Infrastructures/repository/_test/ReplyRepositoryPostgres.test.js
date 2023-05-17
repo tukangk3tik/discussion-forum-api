@@ -67,7 +67,6 @@ describe('ReplyRepositoryPostgres', () => {
       const addedReply = await replyRepositoryPostgres.addReply(newReply);
 
       // Assert 
-      expect(addedReply).toBeInstanceOf(AddedReply);
       expect(addedReply).toStrictEqual(new AddedReply({
         id: 'reply-84234',
         content: 'Reply for comment 123',

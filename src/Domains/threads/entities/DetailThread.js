@@ -5,25 +5,24 @@ class DetailThread {
     this.id = payload.id;
     this.title = payload.title;
     this.body = payload.body;
-    this.date = payload.date;
+    this.date = payload.date.toISOString();
     this.username = payload.username;
-    this.comments = payload.comments;
+    this.comments = payload.comments ?? [];
   }
 
   _verifyPayload(payload) {
-    const {id, title, body, date, username, comments} = payload; 
+    const {id, title, body, date, username} = payload;
 
-    if (!id || !title || !body || !date || !username || !comments) {
-      throw new Error('DETAIL_THREAD.NOT_CONTAIN_NEEDED_PROPERTY')
+    if (!id || !title || !body || !date || !username) {
+      throw new Error('DETAIL_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
     }
 
     if (
       typeof id !== 'string' ||
-      typeof title !== 'string' || 
+      typeof title !== 'string' ||
       typeof body !== 'string' ||
-      typeof date !== 'string' ||
-      typeof username !== 'string' ||
-      !Array.isArray(comments)
+      Object.prototype.toString.call(date) !== '[object Date]' ||
+      typeof username !== 'string'
     ) {
       throw new Error('DETAIL_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION');
     }

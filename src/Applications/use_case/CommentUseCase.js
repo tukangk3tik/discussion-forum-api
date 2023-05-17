@@ -33,12 +33,10 @@ class CommentUseCase {
       if (item.deleted_at) {
         item.content = '**komentar telah dihapus**';
       }
-      item.date = item.date.toISOString();
-      item.replies = [];
       return item;
     });
 
-    return final.map((item) => new DetailComment({...item}));
+    return final.map((item) => new DetailComment(item));
   }
 
   _verifyCommentPayload(payload) {

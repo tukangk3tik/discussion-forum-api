@@ -65,14 +65,9 @@ describe('ReplyUseCase', () => {
     const mockCommentRepository = new CommentRepository();
     const mockThreadRepository = new ThreadRepository();
 
-    mockThreadRepository.getThreadById = jest.fn()
-      .mockImplementation(() => Promise.resolve(thread));
-
-    mockCommentRepository.getCommentById = jest.fn()
-      .mockImplementation(() => Promise.resolve(comment));
-
-    mockReplyRepository.addReply = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockNewReply));
+    mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve(thread));
+    mockCommentRepository.getCommentById = jest.fn(() => Promise.resolve(comment));
+    mockReplyRepository.addReply = jest.fn(() => Promise.resolve(mockNewReply));
     
     const getReplyUseCase = new ReplyUseCase({
       replyRepository: mockReplyRepository,
@@ -109,8 +104,7 @@ describe('ReplyUseCase', () => {
 
     const mockReplyRepository = new ReplyRepository();
 
-    mockReplyRepository.getReplyByCommentId = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockAddedReply));
+    mockReplyRepository.getReplyByCommentId = jest.fn(() => Promise.resolve(mockAddedReply));
     
     const getReplyUseCase = new ReplyUseCase({
       replyRepository: mockReplyRepository,
@@ -142,8 +136,7 @@ describe('ReplyUseCase', () => {
 
     const mockReplyRepository = new ReplyRepository();
 
-    mockReplyRepository.getReplyByCommentId = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockAddedReply));
+    mockReplyRepository.getReplyByCommentId = jest.fn(() => Promise.resolve(mockAddedReply));
     
     const getReplyUseCase = new ReplyUseCase({
       replyRepository: mockReplyRepository,
@@ -181,17 +174,10 @@ describe('ReplyUseCase', () => {
     const mockCommentRepository = new CommentRepository();
     const mockThreadRepository = new ThreadRepository();
 
-    mockThreadRepository.getThreadById = jest.fn()
-      .mockImplementation(() => Promise.resolve(thread));
-
-    mockCommentRepository.getCommentById = jest.fn()
-      .mockImplementation(() => Promise.resolve(comment));
-
-    mockReplyRepository.verifyOwner = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-
-    mockReplyRepository.deleteReply = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockDeleteReply));
+    mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve(thread));
+    mockCommentRepository.getCommentById = jest.fn(() => Promise.resolve(comment));
+    mockReplyRepository.verifyOwner = jest.fn(() => Promise.resolve(true));
+    mockReplyRepository.deleteReply = jest.fn(() => Promise.resolve(mockDeleteReply));
     
     const getReplyUseCase = new ReplyUseCase({
       replyRepository: mockReplyRepository,

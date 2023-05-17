@@ -16,13 +16,22 @@ class ThreadUseCase {
 
   async getThreadById(id) {
     const thread = await this._threadRepository.getThreadById(id);
-    let comments = await this._commentRepository.getCommentByThreadId(id);
+    const comments = await this._commentRepository.getCommentByThreadId(id);
+    const commentIds = comments.map((item) => {
+      return item.id;
+    });
 
-    for (let i = 0; i < comments.length; i++) { 
-      comments[i].replies = await this._replyRepository
-        .getReplyByCommentId(comments[i].id); 
+    const allReply = await this._replyRepository
+        .getReplyByCommentIds(commentIds);
+
+    for (let i = 0; i < comments.length; i++) {
+      comments[i].replies = allReply.filter((item) => {
+        if (item.comment_id === comments[i].id) {
+          return item;
+        }
+      });
     }
-  
+
     thread.comments = comments;
     return thread;
   }
