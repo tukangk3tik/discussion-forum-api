@@ -110,6 +110,16 @@ describe('ThreadRepositoryPostgres', () => {
       expect(getThread.username).toEqual('test-user');
       expect(getThread.comments).toEqual([]);
     });
+
+    it('should throw error when verify not available thread', async () => {
+      // Arrange
+      const id = 'xxxx';
+      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      await expect(threadRepositoryPostgres.verifyThreadAvaibility(id))
+          .rejects.toThrowError(NotFoundError);
+    });
   });
 });
 

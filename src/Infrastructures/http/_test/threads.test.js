@@ -10,12 +10,13 @@ const CommentTableTestHelper = require(
 );
 const container = require('../../container');
 const createServer = require('../createServer');
-const BcryptPasswordHash = require('../../../Infrastructures/security/BcryptPasswordHash');
+const BcryptPasswordHash =
+    require('../../../Infrastructures/security/BcryptPasswordHash');
 
 describe('/threads endpoint', () => {
   const userId = 'user-1234';
   let token = '';
-  let threadId = '';
+  const threadId = 'thread-12345678';
 
   beforeAll(async () => {
     const server = await createServer(container);
@@ -163,8 +164,6 @@ describe('/threads endpoint', () => {
       expect(responseJson.status).toEqual('success');
       expect(responseJson.data.addedThread).toBeDefined();
       expect(responseJson.data.addedThread.id).toBeDefined();
-
-      threadId = responseJson.data.addedThread.id;
     });
   });
 
@@ -182,6 +181,13 @@ describe('/threads endpoint', () => {
     });
 
     it('should detail thread with comment', async () => {
+      await ThreadTableTestHelper.addThread({
+        id: threadId,
+        title: 'Title for SWE',
+        body: 'Comment for SWE Clean Architecture lorem',
+        owner: userId,
+      });
+
       await CommentTableTestHelper.addComment({
         id: 'comment-567',
         content: 'Comment for SWE Clean Architecture lorem',

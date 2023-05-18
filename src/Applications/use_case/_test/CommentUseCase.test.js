@@ -1,34 +1,35 @@
-const CommentRepository = require('../../../Domains/comments/CommentRepository');
+const CommentRepository =
+    require('../../../Domains/comments/CommentRepository');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
-const DetailComment = require('../../../Domains/comments/entities/DetailComment');
+const DetailComment =
+    require('../../../Domains/comments/entities/DetailComment');
 const CommentUseCase = require('../CommentUseCase');
 const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 
 describe('CommentUseCase', () => {
-
   it('should throw error if payload not contain the content', async () => {
-    //Arrange
+    // Arrange
     const useCasePayload = {};
     const commentUseCase = new CommentUseCase({});
 
     await expect(commentUseCase.addComment(useCasePayload))
-      .rejects
-      .toThrowError('NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
+        .rejects
+        .toThrowError('NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
   it('should throw error if payload not meet data type', async () => {
-    //Arrange
+    // Arrange
     const useCasePayload = {content: 123};
     const commentUseCase = new CommentUseCase({});
 
     await expect(commentUseCase.addComment(useCasePayload))
-      .rejects
-      .toThrowError('NEW_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .rejects
+        .toThrowError('NEW_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
   it('should orchestrating the add comment action correctly', async () => {
-    //Arrange
+    // Arrange
     const useCasePayload = {
       content: 'Lorem impsum komentator data',
       thread_id: 'thread-321',
@@ -40,11 +41,10 @@ describe('CommentUseCase', () => {
       owner: 'user-1234',
     });
 
-    console.log(new Date());
     const thread = new DetailThread({
       id: 'thread-321',
-      title: "Title thread",
-      body: "Thread body",
+      title: 'Title thread',
+      body: 'Thread body',
       date: new Date(),
       username: 'user-test',
       comments: [],
@@ -53,9 +53,12 @@ describe('CommentUseCase', () => {
     const mockCommentRepository = new CommentRepository();
     const mockThreadRepository = new ThreadRepository();
 
-    mockCommentRepository.addComment = jest.fn(() => Promise.resolve(mockNewComment));
-    mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve(thread));
-    
+    mockCommentRepository.addComment = jest.fn(() =>
+      Promise.resolve(mockNewComment));
+
+    mockThreadRepository.verifyThreadAvaibility = jest.fn(() =>
+      Promise.resolve(thread));
+
     const getCommentUseCase = new CommentUseCase({
       commentRepository: mockCommentRepository,
       threadRepository: mockThreadRepository,
@@ -72,41 +75,13 @@ describe('CommentUseCase', () => {
       content: useCasePayload.content,
       thread_id: 'thread-321',
     });
-    expect(mockThreadRepository.getThreadById).toBeCalledWith('thread-321');
+    expect(mockThreadRepository.verifyThreadAvaibility)
+        .toBeCalledWith('thread-321');
   });
-
-  it('should get comment by id action correctly', async () => {
-    //Arrange
-    const id = 'comment-321'; 
-    const mockAddedComment = [new AddedComment({
-      id: id,
-      content: 'Reply for thread 5678',
-      owner: 'user-1234',
-    })];
-
-    const mockCommentRepository = new CommentRepository();
-
-    mockCommentRepository.getCommentById = jest.fn(() => Promise.resolve(mockAddedComment));
-    
-    const getCommentUseCase = new CommentUseCase({
-      commentRepository: mockCommentRepository,
-    });
-
-    const getComments = await getCommentUseCase.getCommentById(id);
-    expect(getComments).toHaveLength(1);
-    expect(getComments[0]).toStrictEqual(new AddedComment({
-      id: 'comment-321',
-      content: 'Reply for thread 5678',
-      owner: 'user-1234',
-    }));
-    
-    expect(mockCommentRepository.getCommentById).toBeCalledWith(id);
-  });
- 
 
   it('should get comment by thread id action correctly', async () => {
-    //Arrange
-    const threadId = 'thread-5678'; 
+    // Arrange
+    const threadId = 'thread-5678';
     const newDate = new Date();
     const mockDetailComment = [{
       id: 'comment-321',
@@ -118,8 +93,9 @@ describe('CommentUseCase', () => {
 
     const mockCommentRepository = new CommentRepository();
 
-    mockCommentRepository.getCommentByThreadId = jest.fn(() => Promise.resolve(mockDetailComment));
-    
+    mockCommentRepository.getCommentByThreadId = jest.fn(() =>
+      Promise.resolve(mockDetailComment));
+
     const getCommentUseCase = new CommentUseCase({
       commentRepository: mockCommentRepository,
     });
@@ -133,13 +109,13 @@ describe('CommentUseCase', () => {
       username: 'user-test',
       replies: [],
     }));
-    
+
     expect(mockCommentRepository.getCommentByThreadId).toBeCalledWith(threadId);
   });
 
   it('should get deleted comment by thread id action correctly', async () => {
-    //Arrange
-    const threadId = 'thread-5678'; 
+    // Arrange
+    const threadId = 'thread-5678';
     const newDate = new Date();
     const mockDetailComment = [{
       id: 'comment-321',
@@ -151,8 +127,9 @@ describe('CommentUseCase', () => {
 
     const mockCommentRepository = new CommentRepository();
 
-    mockCommentRepository.getCommentByThreadId = jest.fn(() => Promise.resolve(mockDetailComment));
-    
+    mockCommentRepository.getCommentByThreadId = jest.fn(() =>
+      Promise.resolve(mockDetailComment));
+
     const getCommentUseCase = new CommentUseCase({
       commentRepository: mockCommentRepository,
     });
@@ -165,25 +142,16 @@ describe('CommentUseCase', () => {
       date: newDate,
       username: 'user-test',
     }));
-    
+
     expect(mockCommentRepository.getCommentByThreadId).toBeCalledWith(threadId);
   });
- 
-  it('should orchestrating the delete comment action correctly', async () => {
-    //Arrange
-    const thread = new DetailThread({
-      id: 'thread-321',
-      title: "Title thread",
-      body: "Thread body",
-      date: new Date(),
-      username: 'user-test',
-      comments: [],
-    });
 
+  it('should orchestrating the delete comment action correctly', async () => {
+    // Arrange
     const payload = {
       commentId: 'comment-567',
       threadId: 'thread-123',
-      owner: 'user-1234'
+      owner: 'user-1234',
     };
 
     const deletedAt = new Date().toISOString();
@@ -195,10 +163,15 @@ describe('CommentUseCase', () => {
     const mockCommentRepository = new CommentRepository();
     const mockThreadRepository = new ThreadRepository();
 
-    mockCommentRepository.verifyOwner = jest.fn(() => Promise.resolve(true));
-    mockCommentRepository.deleteComment = jest.fn(() => Promise.resolve(mockDeleteComment));
-    mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve(thread));
-    
+    mockCommentRepository.verifyOwner = jest.fn(() =>
+      Promise.resolve(true));
+
+    mockCommentRepository.deleteComment = jest.fn(() =>
+      Promise.resolve(mockDeleteComment));
+
+    mockThreadRepository.verifyThreadAvaibility = jest.fn(() =>
+      Promise.resolve());
+
     const getCommentUseCase = new CommentUseCase({
       commentRepository: mockCommentRepository,
       threadRepository: mockThreadRepository,
@@ -208,11 +181,13 @@ describe('CommentUseCase', () => {
     expect(deleteComment.id).toStrictEqual(payload.id);
     expect(deleteComment.deleted_at).toBeTruthy();
 
-    expect(mockCommentRepository.deleteComment).toBeCalledWith(payload.commentId);
+    expect(mockCommentRepository.deleteComment)
+        .toBeCalledWith(payload.commentId);
     expect(mockCommentRepository.verifyOwner).toBeCalledWith(
-      payload.commentId, 
-      payload.owner
+        payload.commentId,
+        payload.owner,
     );
-    expect(mockThreadRepository.getThreadById).toBeCalledWith(payload.threadId);
+    expect(mockThreadRepository.verifyThreadAvaibility)
+        .toBeCalledWith(payload.threadId);
   });
 });

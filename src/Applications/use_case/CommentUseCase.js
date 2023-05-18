@@ -9,22 +9,18 @@ class CommentUseCase {
   async addComment(useCasePayload){
     this._verifyCommentPayload(useCasePayload);
 
-    const {thread_id: threadId} = useCasePayload; 
-    await this._threadRepository.getThreadById(threadId);
+    const {threadId: threadId} = useCasePayload;
+    await this._threadRepository.verifyThreadAvaibility(threadId);
 
     return await this._commentRepository.addComment(useCasePayload);
   }
 
   async deleteComment(useCasePayload){
-    const {threadId, commentId, owner} = useCasePayload; 
-    await this._threadRepository.getThreadById(threadId);
-    
+    const {threadId, commentId, owner} = useCasePayload;
+    await this._threadRepository.verifyThreadAvaibility(threadId);
+
     await this._commentRepository.verifyOwner(commentId, owner);
     return await this._commentRepository.deleteComment(commentId);
-  }
-
-  async getCommentById(id) {
-    return await this._commentRepository.getCommentById(id);
   }
 
   async getCommentByThreadId(id) {
@@ -40,7 +36,7 @@ class CommentUseCase {
   }
 
   _verifyCommentPayload(payload) {
-    const {content, thread_id} = payload;
+    const {content} = payload;
 
     if (!content) {
       throw new Error('NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY')

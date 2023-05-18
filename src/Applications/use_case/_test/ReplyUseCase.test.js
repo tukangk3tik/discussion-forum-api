@@ -66,9 +66,9 @@ describe('ReplyUseCase', () => {
     const mockThreadRepository = new ThreadRepository();
 
     mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve(thread));
-    mockCommentRepository.getCommentById = jest.fn(() => Promise.resolve(comment));
+    mockCommentRepository.verifyCommentAvaibility = jest.fn(() => Promise.resolve(comment));
     mockReplyRepository.addReply = jest.fn(() => Promise.resolve(mockNewReply));
-    
+
     const getReplyUseCase = new ReplyUseCase({
       replyRepository: mockReplyRepository,
       commentRepository: mockCommentRepository,
@@ -88,7 +88,7 @@ describe('ReplyUseCase', () => {
       threadId: 'thread-321',
     });
     expect(mockThreadRepository.getThreadById).toBeCalledWith('thread-321');
-    expect(mockCommentRepository.getCommentById).toBeCalledWith('comment-5678');
+    expect(mockCommentRepository.verifyCommentAvaibility).toBeCalledWith('comment-5678');
   });
 
   it('should get replies by comment id action correctly', async () => {
@@ -105,7 +105,7 @@ describe('ReplyUseCase', () => {
     const mockReplyRepository = new ReplyRepository();
 
     mockReplyRepository.getReplyByCommentId = jest.fn(() => Promise.resolve(mockAddedReply));
-    
+
     const getReplyUseCase = new ReplyUseCase({
       replyRepository: mockReplyRepository,
     });
@@ -118,7 +118,7 @@ describe('ReplyUseCase', () => {
       date: newDate.toISOString(),
       username: 'user-test',
     }));
-    
+
     expect(mockReplyRepository.getReplyByCommentId).toBeCalledWith(commentId);
   });
 
@@ -137,7 +137,7 @@ describe('ReplyUseCase', () => {
     const mockReplyRepository = new ReplyRepository();
 
     mockReplyRepository.getReplyByCommentId = jest.fn(() => Promise.resolve(mockAddedReply));
-    
+
     const getReplyUseCase = new ReplyUseCase({
       replyRepository: mockReplyRepository,
     });
@@ -150,11 +150,11 @@ describe('ReplyUseCase', () => {
       date: newDate.toISOString(),
       username: 'user-test',
     }));
-    
+
     expect(mockReplyRepository.getReplyByCommentId).toBeCalledWith(commentId);
   });
- 
- 
+
+
   it('should orchestrating the delete reply action correctly', async () => {
     //Arrange
     const payload = {
@@ -175,10 +175,10 @@ describe('ReplyUseCase', () => {
     const mockThreadRepository = new ThreadRepository();
 
     mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve(thread));
-    mockCommentRepository.getCommentById = jest.fn(() => Promise.resolve(comment));
+    mockCommentRepository.verifyCommentAvaibility = jest.fn(() => Promise.resolve(comment));
     mockReplyRepository.verifyOwner = jest.fn(() => Promise.resolve(true));
     mockReplyRepository.deleteReply = jest.fn(() => Promise.resolve(mockDeleteReply));
-    
+
     const getReplyUseCase = new ReplyUseCase({
       replyRepository: mockReplyRepository,
       commentRepository: mockCommentRepository,
@@ -191,10 +191,10 @@ describe('ReplyUseCase', () => {
 
     expect(mockReplyRepository.deleteReply).toBeCalledWith(payload.replyId);
     expect(mockReplyRepository.verifyOwner).toBeCalledWith(
-      payload.replyId, 
+      payload.replyId,
       payload.owner
     );
     expect(mockThreadRepository.getThreadById).toBeCalledWith(payload.threadId);
-    expect(mockCommentRepository.getCommentById).toBeCalledWith(payload.commentId);
+    expect(mockCommentRepository.verifyCommentAvaibility).toBeCalledWith(payload.commentId);
   });
 });
