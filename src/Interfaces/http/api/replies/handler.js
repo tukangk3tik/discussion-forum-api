@@ -17,7 +17,7 @@ class RepliesHandler {
       owner: userId,
     };
 
-    const replyUseCase = this._container.getInstance(ReplyUseCase.name); 
+    const replyUseCase = this._container.getInstance(ReplyUseCase.name);
     const addedReply = await replyUseCase.addReply(payload);
 
     const response = h.response({
@@ -39,8 +39,8 @@ class RepliesHandler {
 
     const replyUseCase = this._container.getInstance(ReplyUseCase.name);
     await replyUseCase.deleteReply(payload);
-    
-    return { status: 'success' }; 
+
+    return {status: 'success'};
   }
 }
 

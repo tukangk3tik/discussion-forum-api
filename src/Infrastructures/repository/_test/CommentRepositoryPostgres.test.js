@@ -89,8 +89,7 @@ describe('CommentRepositoryPostgres', () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Action & Assert
-      await expect(commentRepositoryPostgres
-          .verifyCommentAvaibility(id))
+      await expect(commentRepositoryPostgres.verifyCommentAvaibility(id))
           .rejects
           .toThrowError(NotFoundError);
     });
@@ -143,7 +142,7 @@ describe('CommentRepositoryPostgres', () => {
       expect(deletedComment.deleted_at).toBeTruthy();
     });
 
-    it('should get delete comment by thread id ', async () => {
+    it('should get deleted comment by thread id ', async () => {
       const id = 'comment-568';
       await CommentTableTestHelper.addComment({
         id: id,
@@ -208,23 +207,6 @@ describe('CommentRepositoryPostgres', () => {
           .verifyOwner('comment-1234567', 'user-123456'))
           .rejects
           .toThrowError(AuthorizationError);
-    });
-
-    it('should bypass the owner verification', async () => {
-      await CommentTableTestHelper.addComment({
-        id: 'comment-1234567',
-        content: 'Test comment',
-        thread_id: 'thread-3212',
-        owner: 'user-8n4IfRl0GfvfDs_QHxQqy',
-      });
-
-      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
-      const result = await commentRepositoryPostgres.verifyOwner(
-          'comment-1234567',
-          'user-8n4IfRl0GfvfDs_QHxQqy',
-      );
-
-      expect(result).toEqual(true);
     });
   });
 });

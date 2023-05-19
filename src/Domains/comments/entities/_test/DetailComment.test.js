@@ -10,7 +10,8 @@ describe('DetailComment entities', () => {
     };
 
     // Action & Assert
-    expect(() => new DetailComment(payload)).toThrowError('DETAIL_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
+    expect(() => new DetailComment(payload))
+        .toThrowError('DETAIL_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
   it('should throw error when payload not meet data type specification', () => {
@@ -24,7 +25,8 @@ describe('DetailComment entities', () => {
     };
 
     // Action & Assert
-    expect(() => new DetailComment(payload)).toThrowError('DETAIL_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    expect(() => new DetailComment(payload))
+        .toThrowError('DETAIL_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
   it('should create DetailThread entities correctly', () => {
@@ -32,7 +34,7 @@ describe('DetailComment entities', () => {
     const payload = {
       id: 'comment-1234',
       content: 'comment content this',
-      date: '2021-08-08T07:19:09.775Z',
+      date: new Date(),
       username: 'user-1234',
       replies: [],
     };
@@ -44,7 +46,7 @@ describe('DetailComment entities', () => {
     expect(detailComment).toBeInstanceOf(DetailComment);
     expect(detailComment.id).toEqual(payload.id);
     expect(detailComment.content).toEqual(payload.content);
-    expect(detailComment.date).toEqual(payload.date);
+    expect(detailComment.date).toEqual(payload.date.toISOString());
     expect(detailComment.username).toEqual(payload.username);
     expect(detailComment.replies).toEqual(payload.replies);
   });

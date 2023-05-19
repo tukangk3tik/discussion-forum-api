@@ -5,7 +5,6 @@ const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 const DetailComment =
     require('../../../Domains/comments/entities/DetailComment');
 const CommentUseCase = require('../CommentUseCase');
-const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 
 describe('CommentUseCase', () => {
   it('should throw error if payload not contain the content', async () => {
@@ -32,22 +31,13 @@ describe('CommentUseCase', () => {
     // Arrange
     const useCasePayload = {
       content: 'Lorem impsum komentator data',
-      thread_id: 'thread-321',
+      threadId: 'thread-321',
     };
 
     const mockNewComment = new AddedComment({
       id: 'comment-567',
       content: useCasePayload.content,
       owner: 'user-1234',
-    });
-
-    const thread = new DetailThread({
-      id: 'thread-321',
-      title: 'Title thread',
-      body: 'Thread body',
-      date: new Date(),
-      username: 'user-test',
-      comments: [],
     });
 
     const mockCommentRepository = new CommentRepository();
@@ -57,7 +47,7 @@ describe('CommentUseCase', () => {
       Promise.resolve(mockNewComment));
 
     mockThreadRepository.verifyThreadAvaibility = jest.fn(() =>
-      Promise.resolve(thread));
+      Promise.resolve());
 
     const getCommentUseCase = new CommentUseCase({
       commentRepository: mockCommentRepository,
@@ -73,7 +63,7 @@ describe('CommentUseCase', () => {
 
     expect(mockCommentRepository.addComment).toBeCalledWith({
       content: useCasePayload.content,
-      thread_id: 'thread-321',
+      threadId: useCasePayload.threadId,
     });
     expect(mockThreadRepository.verifyThreadAvaibility)
         .toBeCalledWith('thread-321');
@@ -88,7 +78,6 @@ describe('CommentUseCase', () => {
       content: 'Reply for thread 5678',
       date: newDate,
       username: 'user-test',
-      replies: [],
     }];
 
     const mockCommentRepository = new CommentRepository();

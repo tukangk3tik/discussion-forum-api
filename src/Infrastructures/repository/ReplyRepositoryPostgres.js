@@ -73,8 +73,6 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     if (comment.owner !== owner) {
       throw new AuthorizationError('Anda tidak berhak mengakses resource');
     }
-
-    return true;
   }
 }
 

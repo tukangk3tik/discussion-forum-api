@@ -137,7 +137,6 @@ describe('/threads/{id}/comment endpoint', () => {
       expect(responseJson.message).toBeDefined();
     });
 
-
     it('should response 201 and persisted comment', async () => {
       const requestPayload = {
         content: 'Comment Lorem ipsum set dolor amet',
@@ -215,7 +214,7 @@ describe('/threads/{id}/comment endpoint', () => {
       expect(responseJson.status).toEqual('success');
     });
 
-    it('should throw error when delete deleted comment', async () => {
+    it('should throw not found error when delete deleted comment', async () => {
       const server = await createServer(container);
       const response = await server.inject({
         method: 'DELETE',
