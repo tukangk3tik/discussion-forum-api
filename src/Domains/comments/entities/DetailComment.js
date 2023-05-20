@@ -7,6 +7,7 @@ class DetailComment {
     this.date = payload.date.toISOString();
     this.username = payload.username;
     this.replies = payload.replies ?? [];
+    this.likeCount = payload.likeCount ?? 0;
   }
 
   _verifyPayload(payload) {
