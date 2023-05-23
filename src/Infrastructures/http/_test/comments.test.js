@@ -229,13 +229,13 @@ describe('/threads/{id}/comment endpoint', () => {
     });
   });
 
-  describe('when PUT /threads/{threadId}/comments/{commentId}', () => {
+  describe('when PUT /threads/{threadId}/comments/{commentId}/likes', () => {
     it('should throw authorization error (401) when delete comment',
         async () => {
           const server = await createServer(container);
           const response = await server.inject({
             method: 'PUT',
-            url: `/threads/${threadId}/comments/comment-1234`,
+            url: `/threads/${threadId}/comments/comment-1234/likes`,
             headers: {'Authorization': `Bearer token123`},
           });
 
@@ -254,7 +254,7 @@ describe('/threads/{id}/comment endpoint', () => {
       const server = await createServer(container);
       const response = await server.inject({
         method: 'PUT',
-        url: `/threads/${threadId}/comments/${commentId}`,
+        url: `/threads/${threadId}/comments/${commentId}/likes`,
         headers: {'Authorization': `Bearer ${token}`},
       });
 
@@ -281,7 +281,7 @@ describe('/threads/{id}/comment endpoint', () => {
       const server = await createServer(container);
       const response = await server.inject({
         method: 'PUT',
-        url: `/threads/${threadId}/comments/${commentId}`,
+        url: `/threads/${threadId}/comments/${commentId}/likes`,
         headers: {'Authorization': `Bearer ${token}`},
       });
 
@@ -295,7 +295,7 @@ describe('/threads/{id}/comment endpoint', () => {
           const server = await createServer(container);
           const response = await server.inject({
             method: 'PUT',
-            url: `/threads/${threadId}/comments/comment-1234`,
+            url: `/threads/${threadId}/comments/comment-1234/likes`,
             headers: {'Authorization': `Bearer ${token}`},
           });
 
