@@ -17,7 +17,7 @@ const createServer = async (container) => {
   await server.register([
     {
       plugin: Jwt,
-    }
+    },
   ]);
 
   server.auth.strategy('auth_jwt', 'jwt', {
@@ -30,38 +30,38 @@ const createServer = async (container) => {
     },
     validate: (artifacts) => ({
       isValid: true,
-      credentials: { 
+      credentials: {
         id: artifacts.decoded.payload.id,
       },
     }),
-  }); 
+  });
 
   await server.register([
     {
       plugin: users,
-      options: { container },
+      options: {container},
     },
     {
       plugin: authentications,
-      options: { container },
+      options: {container},
     },
     {
       plugin: threads,
-      options: { container },
+      options: {container},
     },
     {
       plugin: comments,
-      options: { container },
+      options: {container},
     },
     {
       plugin: replies,
-      options: { container },
-    }
+      options: {container},
+    },
   ]);
 
   server.ext('onPreResponse', (request, h) => {
     // mendapatkan konteks response dari request
-    const { response } = request;
+    const {response} = request;
 
     if (response instanceof Error) {
       // bila response tersebut error, tangani sesuai kebutuhan
@@ -77,7 +77,8 @@ const createServer = async (container) => {
         return newResponse;
       }
 
-      // mempertahankan penanganan client error oleh hapi secara native, seperti 404, etc.
+      // mempertahankan penanganan client error oleh hapi secara native,
+      // seperti 404, etc.
       if (!translatedError.isServer) {
         return h.continue;
       }
@@ -91,7 +92,8 @@ const createServer = async (container) => {
       return newResponse;
     }
 
-    // jika bukan error, lanjutkan dengan response sebelumnya (tanpa terintervensi)
+    // jika bukan error, lanjutkan dengan response sebelumnya
+    // (tanpa terintervensi)
     return h.continue;
   });
 

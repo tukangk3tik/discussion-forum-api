@@ -28,6 +28,7 @@ describe('CommentRepositoryPostgres', () => {
   });
 
   afterEach(async () => {
+    await CommentTableTestHelper.cleanLikeTable();
     await CommentTableTestHelper.cleanTable();
   });
 
@@ -120,6 +121,37 @@ describe('CommentRepositoryPostgres', () => {
       expect(getComment[0].username).toEqual('test-user-comment');
       expect(getComment[0].date).toBeDefined();
     });
+
+    it('should get comment and it likeCount by thread id', async () => {
+      // Arrange
+      const id = 'comment-567';
+      await CommentTableTestHelper.addComment({
+        id: id,
+        content: 'Comment for SWE Clean Architecture lorem',
+        thread_id: 'thread-3212',
+        owner: 'user-8n4IfRl0GfvfDs_QHxQqy',
+      });
+      await CommentTableTestHelper.addCommentLike({
+        id: 'commentlike-123',
+        commentId: id,
+        owner: 'user-8n4IfRl0GfvfDs_QHxQqy',
+      });
+
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action
+      const getComment =
+        await commentRepositoryPostgres.getCommentByThreadId('thread-3212');
+
+      // Assert
+      expect(getComment.length).toEqual(1);
+      expect(getComment[0].id).toEqual(id);
+      expect(getComment[0].content)
+          .toEqual('Comment for SWE Clean Architecture lorem');
+      expect(getComment[0].username).toEqual('test-user-comment');
+      expect(getComment[0].date).toBeDefined();
+      expect(getComment[0].like_count).toEqual('1');
+    });
   });
 
   describe('deleteComment function', () => {
@@ -207,6 +239,98 @@ describe('CommentRepositoryPostgres', () => {
           .verifyOwner('comment-1234567', 'user-123456'))
           .rejects
           .toThrowError(AuthorizationError);
+    });
+  });
+
+  describe('like and unlike function', () => {
+    it('should add like comment correctly', async () => {
+      const commentId = 'comment-1234';
+      await CommentTableTestHelper.addComment({
+        id: commentId,
+        content: 'Comment for SWE Clean Architecture lorem',
+        thread_id: 'thread-3212',
+        owner: 'user-8n4IfRl0GfvfDs_QHxQqy',
+      });
+
+      const fakeIdGenerator = () => '567';
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(
+          pool, fakeIdGenerator,
+      );
+
+      await commentRepositoryPostgres.likeComment(
+          commentId, 'user-8n4IfRl0GfvfDs_QHxQqy',
+      );
+
+      const isLike = await CommentTableTestHelper.getCommentLike({
+        commentId: commentId,
+        owner: 'user-8n4IfRl0GfvfDs_QHxQqy',
+      });
+      expect(isLike).toHaveLength(1);
+    });
+
+    it('should unlike comment correctly', async () => {
+      const commentId = 'comment-1234';
+      await CommentTableTestHelper.addComment({
+        id: commentId,
+        content: 'Comment for SWE Clean Architecture lorem',
+        thread_id: 'thread-3212',
+        owner: 'user-8n4IfRl0GfvfDs_QHxQqy',
+      });
+
+      await CommentTableTestHelper.addCommentLike({
+        commentId: commentId,
+        owner: 'user-8n4IfRl0GfvfDs_QHxQqy',
+      });
+
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+      await commentRepositoryPostgres.unlikeComment(
+          commentId, 'user-8n4IfRl0GfvfDs_QHxQqy',
+      );
+
+      const isLike = await CommentTableTestHelper.getCommentLike({
+        commentId: commentId,
+        owner: 'user-8n4IfRl0GfvfDs_QHxQqy',
+      });
+      expect(isLike).toHaveLength(0);
+    });
+
+    it('should return true if comment is liked', async () => {
+      const commentId = 'comment-1234';
+      await CommentTableTestHelper.addComment({
+        id: commentId,
+        content: 'Comment for SWE Clean Architecture lorem',
+        thread_id: 'thread-3212',
+        owner: 'user-8n4IfRl0GfvfDs_QHxQqy',
+      });
+
+      await CommentTableTestHelper.addCommentLike({
+        commentId: commentId,
+        owner: 'user-8n4IfRl0GfvfDs_QHxQqy',
+      });
+
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+      const result = await commentRepositoryPostgres.isCommentLiked(
+          commentId, 'user-8n4IfRl0GfvfDs_QHxQqy',
+      );
+
+      expect(result).toEqual(true);
+    });
+
+    it('should return false if comment is not liked', async () => {
+      const commentId = 'comment-1234';
+      await CommentTableTestHelper.addComment({
+        id: commentId,
+        content: 'Comment for SWE Clean Architecture lorem',
+        thread_id: 'thread-3212',
+        owner: 'user-8n4IfRl0GfvfDs_QHxQqy',
+      });
+
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+      const result = await commentRepositoryPostgres.isCommentLiked(
+          commentId, 'user-8n4IfRl0GfvfDs_QHxQqy',
+      );
+
+      expect(result).toEqual(false);
     });
   });
 });

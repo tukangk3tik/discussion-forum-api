@@ -5,6 +5,7 @@ const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 const DetailComment =
     require('../../../Domains/comments/entities/DetailComment');
 const CommentUseCase = require('../CommentUseCase');
+const {use} = require('bcrypt/promises');
 
 describe('CommentUseCase', () => {
   it('should throw error if payload not contain the content', async () => {
@@ -178,5 +179,81 @@ describe('CommentUseCase', () => {
     );
     expect(mockThreadRepository.verifyThreadAvaibility)
         .toBeCalledWith(payload.threadId);
+  });
+
+  it('should orchestrating like a comment action correctly', async () => {
+    const mockCommentRepository = new CommentRepository();
+    const mockThreadRepository = new ThreadRepository();
+    const useCasePayload = {
+      threadId: 'thread-123',
+      commentId: 'comment-123',
+      owner: 'user-1234',
+    };
+
+    mockCommentRepository.likeComment = jest.fn(() =>
+      Promise.resolve());
+
+    mockCommentRepository.verifyCommentAvaibility = jest.fn(() =>
+      Promise.resolve());
+
+    mockThreadRepository.verifyThreadAvaibility = jest.fn(() =>
+      Promise.resolve());
+
+    mockCommentRepository.isCommentLiked = jest.fn(() =>
+      Promise.resolve(false));
+
+    const getCommentUseCase = new CommentUseCase({
+      commentRepository: mockCommentRepository,
+      threadRepository: mockThreadRepository,
+    });
+
+    await getCommentUseCase.likeOrUnlikeComment(useCasePayload);
+
+    expect(mockCommentRepository.likeComment)
+        .toBeCalledWith('comment-123', 'user-1234');
+    expect(mockCommentRepository.isCommentLiked)
+        .toBeCalledWith('comment-123', 'user-1234');
+    expect(mockCommentRepository.verifyCommentAvaibility)
+        .toBeCalledWith('comment-123');
+    expect(mockThreadRepository.verifyThreadAvaibility)
+        .toBeCalledWith('thread-123');
+  });
+
+  it('should orchestrating unlike a comment action correctly', async () => {
+    const mockCommentRepository = new CommentRepository();
+    const mockThreadRepository = new ThreadRepository();
+    const useCasePayload = {
+      threadId: 'thread-123',
+      commentId: 'comment-123',
+      owner: 'user-1234',
+    };
+
+    mockCommentRepository.unlikeComment = jest.fn(() =>
+      Promise.resolve());
+
+    mockCommentRepository.verifyCommentAvaibility = jest.fn(() =>
+      Promise.resolve());
+
+    mockThreadRepository.verifyThreadAvaibility = jest.fn(() =>
+      Promise.resolve());
+
+    mockCommentRepository.isCommentLiked = jest.fn(() =>
+      Promise.resolve(true));
+
+    const getCommentUseCase = new CommentUseCase({
+      commentRepository: mockCommentRepository,
+      threadRepository: mockThreadRepository,
+    });
+
+    await getCommentUseCase.likeOrUnlikeComment(useCasePayload);
+
+    expect(mockCommentRepository.unlikeComment)
+        .toBeCalledWith('comment-123', 'user-1234');
+    expect(mockCommentRepository.isCommentLiked)
+        .toBeCalledWith('comment-123', 'user-1234');
+    expect(mockCommentRepository.verifyCommentAvaibility)
+        .toBeCalledWith('comment-123');
+    expect(mockThreadRepository.verifyThreadAvaibility)
+        .toBeCalledWith('thread-123');
   });
 });

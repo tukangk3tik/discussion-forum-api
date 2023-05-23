@@ -36,7 +36,6 @@ describe('DetailComment entities', () => {
       content: 'comment content this',
       date: new Date(),
       username: 'user-1234',
-      replies: [],
     };
 
     // Action
@@ -48,6 +47,7 @@ describe('DetailComment entities', () => {
     expect(detailComment.content).toEqual(payload.content);
     expect(detailComment.date).toEqual(payload.date.toISOString());
     expect(detailComment.username).toEqual(payload.username);
-    expect(detailComment.replies).toEqual(payload.replies);
+    expect(detailComment.replies).toEqual([]);
+    expect(detailComment.likeCount).toEqual(0);
   });
 });
