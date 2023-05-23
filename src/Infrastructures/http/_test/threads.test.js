@@ -8,6 +8,7 @@ const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const CommentTableTestHelper = require(
     '../../../../tests/CommentTableTestHelper',
 );
+const ReplyTableTestHelper = require('../../../../tests/ReplyTableTestHelper');
 const container = require('../../container');
 const createServer = require('../createServer');
 const BcryptPasswordHash =
@@ -44,9 +45,14 @@ describe('/threads endpoint', () => {
     token = responseJson.data.accessToken;
   });
 
-  afterAll(async () => {
+  afterEach(async () => {
+    await ReplyTableTestHelper.cleanTable();
+    await CommentTableTestHelper.cleanLikeTable();
     await CommentTableTestHelper.cleanTable();
     await ThreadTableTestHelper.cleanTable();
+  });
+
+  afterAll(async () => {
     await UsersTableTestHelper.cleanTable();
     await pool.end();
   });
@@ -180,33 +186,51 @@ describe('/threads endpoint', () => {
       expect(responseJson.message).toBeDefined();
     });
 
-    it('should detail thread with comment', async () => {
-      await ThreadTableTestHelper.addThread({
-        id: threadId,
-        title: 'Title for SWE',
-        body: 'Comment for SWE Clean Architecture lorem',
-        owner: userId,
-      });
+    it('should detail thread with comment, comment likes, and comment replies',
+        async () => {
+          await ThreadTableTestHelper.addThread({
+            id: threadId,
+            title: 'Title for SWE',
+            body: 'Comment for SWE Clean Architecture lorem',
+            owner: userId,
+          });
 
-      await CommentTableTestHelper.addComment({
-        id: 'comment-567',
-        content: 'Comment for SWE Clean Architecture lorem',
-        thread_id: threadId,
-        owner: userId,
-      });
+          await CommentTableTestHelper.addComment({
+            id: 'comment-567',
+            content: 'Comment for SWE Clean Architecture lorem',
+            thread_id: threadId,
+            owner: userId,
+          });
 
-      const server = await createServer(container);
-      const response = await server.inject({
-        method: 'GET',
-        url: `/threads/${threadId}`,
-      });
+          await CommentTableTestHelper.addCommentLike({
+            id: 'commentlike-123',
+            commentId: 'comment-567',
+            owner: userId,
+          });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(200);
-      expect(responseJson.data.thread).toBeDefined();
-      expect(responseJson.data.thread.id).toEqual(threadId);
-      expect(responseJson.data.thread.comments.length).toBeTruthy();
-      expect(responseJson.data.thread.comments[0].id).toEqual('comment-567');
-    });
+          await ReplyTableTestHelper.addReply({
+            id: 'reply-567',
+            content: 'Comment for SWE Clean Architecture lorem',
+            comment_id: 'comment-567',
+            owner: userId,
+          });
+
+          const server = await createServer(container);
+          const response = await server.inject({
+            method: 'GET',
+            url: `/threads/${threadId}`,
+          });
+
+          const responseJson = JSON.parse(response.payload);
+          expect(response.statusCode).toEqual(200);
+          expect(responseJson.data.thread).toBeDefined();
+          expect(responseJson.data.thread.id).toEqual(threadId);
+          expect(responseJson.data.thread.comments.length).toBeTruthy();
+          expect(responseJson.data.thread.comments[0].id)
+              .toEqual('comment-567');
+          expect(responseJson.data.thread.comments[0].likeCount).toEqual(1);
+          expect(responseJson.data.thread.comments[0].replies[0].id)
+              .toEqual('reply-567');
+        });
   });
 });

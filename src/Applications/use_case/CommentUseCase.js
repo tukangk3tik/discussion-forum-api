@@ -6,7 +6,7 @@ class CommentUseCase {
     this._threadRepository = threadRepository;
   }
 
-  async addComment(useCasePayload){
+  async addComment(useCasePayload) {
     this._verifyCommentPayload(useCasePayload);
 
     const {threadId} = useCasePayload;
@@ -15,7 +15,7 @@ class CommentUseCase {
     return await this._commentRepository.addComment(useCasePayload);
   }
 
-  async deleteComment(useCasePayload){
+  async deleteComment(useCasePayload) {
     const {threadId, commentId, owner} = useCasePayload;
     await this._threadRepository.verifyThreadAvaibility(threadId);
 
@@ -35,11 +35,25 @@ class CommentUseCase {
     return final.map((item) => new DetailComment(item));
   }
 
+  async likeOrUnlikeComment(useCasePayload) {
+    const {threadId, commentId, owner} = useCasePayload;
+
+    await this._threadRepository.verifyThreadAvaibility(threadId);
+    await this._commentRepository.verifyCommentAvaibility(commentId);
+    const isLiked = await this._commentRepository
+        .isCommentLiked(commentId, owner);
+    if (isLiked) {
+      await this._commentRepository.unlikeComment(commentId, owner);
+    } else {
+      await this._commentRepository.likeComment(commentId, owner);
+    }
+  }
+
   _verifyCommentPayload(payload) {
     const {content} = payload;
 
     if (!content) {
-      throw new Error('NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY')
+      throw new Error('NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
     }
 
     if (typeof content !== 'string') {

@@ -7,13 +7,15 @@ class DetailComment {
     this.date = payload.date.toISOString();
     this.username = payload.username;
     this.replies = payload.replies ?? [];
+    this.likeCount = (payload.like_count) ?
+      parseInt(payload.like_count) : 0;
   }
 
   _verifyPayload(payload) {
     const {id, content, date, username} = payload;
 
     if (!id || !content || !date || !username) {
-      throw new Error('DETAIL_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY')
+      throw new Error('DETAIL_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
     }
 
     if (
