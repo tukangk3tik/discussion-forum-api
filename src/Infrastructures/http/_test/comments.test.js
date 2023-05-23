@@ -71,6 +71,7 @@ describe('/threads/{id}/comment endpoint', () => {
   });
 
   afterEach(async () => {
+    await CommentTableTestHelper.cleanLikeTable();
     await CommentTableTestHelper.cleanTable();
   });
 
@@ -226,5 +227,81 @@ describe('/threads/{id}/comment endpoint', () => {
       expect(response.statusCode).toEqual(404);
       expect(responseJson.status).toEqual('fail');
     });
+  });
+
+  describe('when PUT /threads/{threadId}/comments/{commentId}', () => {
+    it('should throw authorization error (401) when delete comment',
+        async () => {
+          const server = await createServer(container);
+          const response = await server.inject({
+            method: 'PUT',
+            url: `/threads/${threadId}/comments/comment-1234`,
+            headers: {'Authorization': `Bearer token123`},
+          });
+
+          expect(response.statusCode).toEqual(401);
+        });
+
+    it('should response 200 and like comment', async () => {
+      const commentId = 'comment-54321';
+      await CommentTableTestHelper.addComment({
+        id: commentId,
+        content: 'Comment for SWE Clean Architecture lorem',
+        thread_id: threadId,
+        owner: userId,
+      });
+
+      const server = await createServer(container);
+      const response = await server.inject({
+        method: 'PUT',
+        url: `/threads/${threadId}/comments/${commentId}`,
+        headers: {'Authorization': `Bearer ${token}`},
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+    });
+
+    it('should response 200 and unlike comment', async () => {
+      const commentId = 'comment-54321';
+      await CommentTableTestHelper.addComment({
+        id: commentId,
+        content: 'Comment for SWE Clean Architecture lorem',
+        thread_id: threadId,
+        owner: userId,
+      });
+
+      await CommentTableTestHelper.addCommentLike({
+        id: 'commentlike-12345',
+        commentId: commentId,
+        owner: userId,
+      });
+
+      const server = await createServer(container);
+      const response = await server.inject({
+        method: 'PUT',
+        url: `/threads/${threadId}/comments/${commentId}`,
+        headers: {'Authorization': `Bearer ${token}`},
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+    });
+
+    it('should throw not found error when like a not found comment',
+        async () => {
+          const server = await createServer(container);
+          const response = await server.inject({
+            method: 'PUT',
+            url: `/threads/${threadId}/comments/comment-1234`,
+            headers: {'Authorization': `Bearer ${token}`},
+          });
+
+          const responseJson = JSON.parse(response.payload);
+          expect(response.statusCode).toEqual(404);
+          expect(responseJson.status).toEqual('fail');
+        });
   });
 });

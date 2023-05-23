@@ -91,6 +91,63 @@ describe('GetThreadWithCommentAndReplyUseCase', () => {
         .toBeCalledWith([mockComment[0].id]);
   });
 
+  it('should get thread with liked comment', async () => {
+    // Arrange
+    const mockComment = [{
+      id: 'comment-123',
+      content: 'Comment content',
+      date: newDate,
+      username: 'user-test',
+      like_count: '1',
+    }];
+    const mockReply = [];
+
+    const mockThreadRepository = new ThreadRepository();
+    const mockCommentRepository = new CommentRepository();
+    const mockReplyRepository = new ReplyRepository();
+
+    mockThreadRepository.getThreadById =
+      jest.fn(() => Promise.resolve(mockAddedThread));
+
+    mockCommentRepository.getCommentByThreadId =
+      jest.fn(() => Promise.resolve(mockComment));
+
+    mockReplyRepository.getReplyByCommentIds =
+      jest.fn(() => Promise.resolve(mockReply));
+
+    const getThreadUseCase = new GetThreadWithCommentAndReplyUseCase({
+      threadRepository: mockThreadRepository,
+      commentRepository: mockCommentRepository,
+      replyRepository: mockReplyRepository,
+    });
+
+    const getThread = await getThreadUseCase.execute(mockAddedThread.id);
+
+    const expectedComment = [new DetailComment({
+      id: 'comment-123',
+      content: 'Comment content',
+      date: newDate,
+      username: 'user-test',
+      replies: [],
+      like_count: '1',
+    })];
+
+    expect(getThread).toStrictEqual(new DetailThread({
+      id: 'thread-321',
+      title: 'Title thread',
+      body: 'Body thread',
+      date: newDate,
+      username: 'user-test',
+      comments: expectedComment,
+    }));
+
+    expect(mockThreadRepository.getThreadById)
+        .toBeCalledWith(mockAddedThread.id);
+
+    expect(mockCommentRepository.getCommentByThreadId)
+        .toBeCalledWith(mockAddedThread.id);
+  });
+
   it('should get thread with deleted comment', async () => {
     // Arrange
     const mockComment = [{

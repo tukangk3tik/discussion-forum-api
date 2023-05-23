@@ -2,6 +2,7 @@ const CommentRepository = require('../../Domains/comments/CommentRepository');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const AuthorizationError =
     require('../../Commons/exceptions/AuthorizationError');
+const InvariantError = require('../../Commons/exceptions/InvariantError');
 const AddedComment = require('../../Domains/comments/entities/AddedComment');
 
 class CommentRepositoryPostgres extends CommentRepository {
@@ -62,7 +63,7 @@ class CommentRepositoryPostgres extends CommentRepository {
       text: 'SELECT a.id, a.content, a.created_at as date,' +
         ' a.deleted_at, b.username,' +
         ' (SELECT COUNT(id) FROM thread_comment_likes' +
-        ' WHERE comment_id = a.id) as likeCount' +
+        ' WHERE comment_id = a.id) as like_count' +
         ' FROM thread_comments a' +
         ' JOIN users b ON b.id = a.owner' +
         ' WHERE a.thread_id = $1',
@@ -71,6 +72,38 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     const result = await this._pool.query(query);
     return result.rows;
+  }
+
+  async likeComment(commentId, owner){
+    const id = `commentlike-${this._idGenerator()}`;
+
+    const query = {
+      text: 'INSERT INTO thread_comment_likes' +
+        ' VALUES($1, $2, $3)',
+      values: [id, commentId, owner],
+    };
+    await this._pool.query(query);
+  }
+
+  async unlikeComment(commentId, owner){
+    const query = {
+      text: 'DELETE FROM thread_comment_likes' +
+        ' WHERE comment_id = $1 AND owner = $2' +
+        ' RETURNING id',
+      values: [commentId, owner],
+    };
+    await this._pool.query(query);
+  }
+
+  async isCommentLiked(commentId, owner) {
+    const query = {
+      text: 'SELECT id FROM thread_comment_likes' +
+        ' WHERE comment_id = $1 AND owner = $2',
+      values: [commentId, owner],
+    };
+
+    const result = await this._pool.query(query);
+    return result.rowCount > 0;
   }
 
   async verifyOwner(id, owner) {

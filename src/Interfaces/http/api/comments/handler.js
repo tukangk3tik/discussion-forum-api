@@ -7,6 +7,8 @@ class CommentsHandler {
 
     this.postCommentHandler = this.postCommentHandler.bind(this);
     this.deleteCommentHandler = this.deleteCommentHandler.bind(this);
+    this.likeOrUnlikeCommentHandler =
+      this.likeOrUnlikeCommentHandler.bind(this);
   }
 
   async postCommentHandler(request, h) {
@@ -38,6 +40,19 @@ class CommentsHandler {
 
     const commentUseCase = this._container.getInstance(CommentUseCase.name);
     await commentUseCase.deleteComment(payload);
+
+    return {status: 'success'};
+  }
+
+  async likeOrUnlikeCommentHandler(request) {
+    const {id: owner} = request.auth.credentials;
+    const payload = {
+      ...request.params,
+      owner: owner,
+    };
+
+    const commentUseCase = this._container.getInstance(CommentUseCase.name);
+    await commentUseCase.likeOrUnlikeComment(payload);
 
     return {status: 'success'};
   }

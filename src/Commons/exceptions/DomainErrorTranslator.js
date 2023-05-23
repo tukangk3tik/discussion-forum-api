@@ -53,6 +53,9 @@ DomainErrorTranslator._directories = {
   'NEW_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError(
       'konten komentar harus string',
   ),
+  'NEW_COMMENT.NOT_LIKE_COMMENT_BEFORE': new InvariantError(
+      'gagal unlike, belum melakukan like sebelumnya',
+  ),
 
   'NEW_REPLY.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError(
       'harus mengirimkan konten balasan',
