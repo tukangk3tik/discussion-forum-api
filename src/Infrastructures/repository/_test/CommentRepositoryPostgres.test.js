@@ -143,7 +143,6 @@ describe('CommentRepositoryPostgres', () => {
       const getComment =
         await commentRepositoryPostgres.getCommentByThreadId('thread-3212');
 
-      console.log(getComment[0]);
       // Assert
       expect(getComment.length).toEqual(1);
       expect(getComment[0].id).toEqual(id);
